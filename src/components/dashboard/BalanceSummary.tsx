@@ -75,7 +75,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
               <TrendingUp size={24} className="text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-slate-500">This Month Income</p>
+              <p className="text-sm font-medium text-slate-500">This Month's Income</p>
               <h3 className="text-xl md:text-2xl font-bold text-green-600 mt-1">
                 {formatCurrency(monthlyIncome)}
               </h3>
