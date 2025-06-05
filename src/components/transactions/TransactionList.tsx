@@ -23,17 +23,20 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   
   const getWalletCurrency = (walletId: string) => {
     const wallet = wallets.find(w => w.id === walletId);
-    return wallet ? wallet.currency : 'USD';
+    return wallet ? wallet.currency : 'NPR';
   };
   
   const formatCurrency = (amount: number | undefined, walletId: string) => {
     if (amount === undefined) return '';
     
     const currency = getWalletCurrency(walletId);
-    return new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: currency,
+      currencyDisplay: 'code',
     }).format(amount);
+
+    return currency === 'NPR' ? formatted.replace('NPR', 'रु') : formatted;
   };
   
   if (transactions.length === 0) {
@@ -51,6 +54,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           <tr className="bg-slate-50 border-b border-slate-200">
             <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Reason</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Wallet</th>
             <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Income</th>
@@ -68,9 +72,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 {format(new Date(transaction.date), 'MMM dd, yyyy')}
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-sm">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                  {transaction.type}
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  transaction.income ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {transaction.income ? 'Income' : 'Expense'}
                 </span>
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900">
+                {transaction.type}
               </td>
               <td className="px-4 py-3 text-sm text-slate-900 max-w-xs truncate">
                 {transaction.reason}
