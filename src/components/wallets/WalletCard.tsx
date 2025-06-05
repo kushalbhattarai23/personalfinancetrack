@@ -17,20 +17,25 @@ export const WalletCard: React.FC<WalletCardProps> = ({
   onSelect,
 }) => {
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: currency,
+      currencyDisplay: 'code',
     }).format(amount);
+
+    return currency === 'NPR' ? formatted.replace('NPR', 'रु') : formatted;
   };
   
   return (
-    <Card 
-      className="hover:shadow-md transition-shadow cursor-pointer"
-      onClick={() => onSelect(wallet)}
-    >
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-slate-900">{wallet.name}</h3>
+          <h3 
+            className="text-lg font-semibold text-slate-900 cursor-pointer hover:text-emerald-600 transition-colors"
+            onClick={() => onSelect(wallet)}
+          >
+            {wallet.name}
+          </h3>
           <div className="flex items-center space-x-2">
             <button 
               onClick={(e) => {
