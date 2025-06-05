@@ -29,11 +29,15 @@ export const ExpenseByCategory: React.FC<ExpenseByCategoryProps> = ({
   };
   
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatted = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'NPR',
+    currencyDisplay: 'code', // Show "NPR" so we can replace it
+  }).format(amount);
+
+  // Replace "NPR" with "रु"
+  return formatted.replace('NPR', 'रु');
+};
   
   const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#06b6d4', '#14b8a6'];
   
