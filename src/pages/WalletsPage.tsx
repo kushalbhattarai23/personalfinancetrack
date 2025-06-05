@@ -7,24 +7,31 @@ import { Modal } from '../components/ui/Modal';
 import { WalletForm } from '../components/wallets/WalletForm';
 import { useWalletStore } from '../store/walletStore';
 import { Wallet } from '../types';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export const WalletsPage: React.FC = () => {
   const { wallets, fetchWallets, addWallet, updateWallet, deleteWallet, isLoading } = useWalletStore();
-  
-  const [showAddModal, setShowAddModal] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Modals states for edit and delete remain local for now
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
-  
+
+  // The "Add Wallet" modal is now controlled by URL param `modal=add`
+  const showAddModal = searchParams.get('modal') === 'add';
+
   useEffect(() => {
     fetchWallets();
   }, [fetchWallets]);
-  
+
   const handleAddWallet = async (wallet: Omit<Wallet, 'id' | 'user_id' | 'created_at'>) => {
     await addWallet(wallet);
-    setShowAddModal(false);
+    setSearchParams({}); // Close modal by clearing query param
   };
-  
+
   const handleEditWallet = async (wallet: Omit<Wallet, 'id' | 'user_id' | 'created_at'>) => {
     if (selectedWallet) {
       await updateWallet(selectedWallet.id, wallet);
@@ -32,7 +39,7 @@ export const WalletsPage: React.FC = () => {
       setSelectedWallet(null);
     }
   };
-  
+
   const handleDeleteWallet = async () => {
     if (selectedWallet) {
       await deleteWallet(selectedWallet.id);
@@ -40,39 +47,39 @@ export const WalletsPage: React.FC = () => {
       setSelectedWallet(null);
     }
   };
-  
+
   const openEditModal = (wallet: Wallet) => {
     setSelectedWallet(wallet);
     setShowEditModal(true);
   };
-  
+
   const openDeleteModal = (id: string) => {
     const wallet = wallets.find(w => w.id === id) || null;
     setSelectedWallet(wallet);
     setShowDeleteModal(true);
   };
-  
+
   const navigateToWalletDetails = (wallet: Wallet) => {
     window.location.href = `/wallets/${wallet.id}`;
   };
-  
+
   return (
     <MainLayout>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-slate-900">Wallets</h2>
         <Button
           leftIcon={<Plus size={16} />}
-          onClick={() => setShowAddModal(true)}
+          onClick={() => setSearchParams({ modal: 'add' })}
         >
           Add Wallet
         </Button>
       </div>
-      
+
       {wallets.length === 0 ? (
         <div className="bg-white rounded-lg border border-slate-200 p-6 text-center">
           <h3 className="text-lg font-medium text-slate-900 mb-2">No wallets found</h3>
           <p className="text-slate-500 mb-4">Get started by creating your first wallet.</p>
-          <Button onClick={() => setShowAddModal(true)}>Add Wallet</Button>
+          <Button onClick={() => setSearchParams({ modal: 'add' })}>Add Wallet</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -87,11 +94,11 @@ export const WalletsPage: React.FC = () => {
           ))}
         </div>
       )}
-      
+
       {/* Add Wallet Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => setSearchParams({})}
         title="Add New Wallet"
       >
         <WalletForm
@@ -99,11 +106,14 @@ export const WalletsPage: React.FC = () => {
           isLoading={isLoading}
         />
       </Modal>
-      
+
       {/* Edit Wallet Modal */}
       <Modal
         isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedWallet(null);
+        }}
         title="Edit Wallet"
       >
         {selectedWallet && (
@@ -114,11 +124,14 @@ export const WalletsPage: React.FC = () => {
           />
         )}
       </Modal>
-      
+
       {/* Delete Wallet Modal */}
       <Modal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedWallet(null);
+        }}
         title="Delete Wallet"
         size="sm"
       >
@@ -129,7 +142,10 @@ export const WalletsPage: React.FC = () => {
           <div className="flex justify-end space-x-4">
             <Button
               variant="outline"
-              onClick={() => setShowDeleteModal(false)}
+              onClick={() => {
+                setShowDeleteModal(false);
+                setSelectedWallet(null);
+              }}
             >
               Cancel
             </Button>
