@@ -33,13 +33,17 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
       .filter(t => new Date(t.date) >= startOfMonth && t.expense)
       .reduce((total, t) => total + (t.expense || 0), 0);
   };
-  
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatted = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'NPR',
+    currencyDisplay: 'code', // Show "NPR" so we can replace it
+  }).format(amount);
+
+  // Replace "NPR" with "रु"
+  return formatted.replace('NPR', 'रु');
+};
   
   const totalBalance = getTotalBalance();
   const monthlyIncome = getThisMonthIncome();
