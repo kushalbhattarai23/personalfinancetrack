@@ -34,7 +34,7 @@ export const DashboardPage: React.FC = () => {
           </Button>
           <Button
             leftIcon={<Plus size={16} />}
-            onClick={() => navigate('/transactions')}
+            onClick={() => navigate('/transactions?modal=add')}
             className="w-full sm:w-auto"
           >
             New Transaction
