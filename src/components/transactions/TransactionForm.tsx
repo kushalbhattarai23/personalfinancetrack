@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, DollarSign, Tag, FileText } from 'lucide-react';
-import { format } from 'date-fns';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Select } from '../ui/Select';
-import { Transaction, TRANSACTION_TYPES, Wallet } from '../../types';
+import { Transaction, Wallet } from '../../types';
 
 interface TransactionFormProps {
   transaction?: Transaction;
@@ -21,24 +20,24 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onSubmit,
   isLoading,
 }) => {
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const today = new Date().toISOString().split('T')[0];
   
   const [date, setDate] = useState(today);
-  const [type, setType] = useState<string>(TRANSACTION_TYPES[0]);
-  const [income, setIncome] = useState('');
-  const [expense, setExpense] = useState('');
+  const [transactionType, setTransactionType] = useState('expense');
+  const [category, setCategory] = useState('Food');
   const [reason, setReason] = useState('');
   const [walletId, setWalletId] = useState('');
+  const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   
   useEffect(() => {
     if (transaction) {
       setDate(transaction.date);
-      setType(transaction.type);
-      setIncome(transaction.income ? transaction.income.toString() : '');
-      setExpense(transaction.expense ? transaction.expense.toString() : '');
+      setTransactionType(transaction.income ? 'income' : 'expense');
+      setCategory(transaction.type);
       setReason(transaction.reason);
       setWalletId(transaction.wallet_id);
+      setAmount(transaction.income ? transaction.income.toString() : transaction.expense ? transaction.expense.toString() : '');
     }
   }, [transaction]);
   
@@ -46,7 +45,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     if (selectedWalletId) {
       setWalletId(selectedWalletId);
     } else if (wallets.length === 1) {
-      // If there's only one wallet, select it by default
       setWalletId(wallets[0].id);
     }
   }, [selectedWalletId, wallets]);
@@ -60,24 +58,37 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       return;
     }
     
+    const parsedAmount = parseFloat(amount);
+    
     onSubmit({
       date,
-      type: type as any,
-      income: income ? parseFloat(income) : undefined,
-      expense: expense ? parseFloat(expense) : undefined,
+      type: category,
+      income: transactionType === 'income' ? parsedAmount : undefined,
+      expense: transactionType === 'expense' ? parsedAmount : undefined,
       reason,
       wallet_id: walletId,
     });
   };
   
-  const typeOptions = TRANSACTION_TYPES.map(type => ({
-    value: type,
-    label: type,
-  }));
+  const transactionTypeOptions = [
+    { value: 'income', label: 'Income' },
+    { value: 'expense', label: 'Expense' },
+  ];
+  
+  const categoryOptions = [
+    { value: 'Food', label: 'Food' },
+    { value: 'Transportation', label: 'Transportation' },
+    { value: 'Entertainment', label: 'Entertainment' },
+    { value: 'Shopping', label: 'Shopping' },
+    { value: 'Bills', label: 'Bills' },
+    { value: 'Salary', label: 'Salary' },
+    { value: 'Investment', label: 'Investment' },
+    { value: 'Others', label: 'Others' },
+  ];
   
   const walletOptions = wallets.map(wallet => ({
     value: wallet.id,
-    label: wallet.name,
+    label: `${wallet.name} (${wallet.currency})`,
   }));
   
   return (
@@ -91,39 +102,25 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         leftIcon={<Calendar size={18} />}
       />
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input
-          label="Income Amount (Optional)"
-          type="number"
-          step="0.01"
-          placeholder="0.00"
-          value={income}
-          onChange={(e) => setIncome(e.target.value)}
-          leftIcon={<DollarSign size={18} className="text-emerald-500" />}
-        />
-        
-        <Input
-          label="Expense Amount (Optional)"
-          type="number"
-          step="0.01"
-          placeholder="0.00"
-          value={expense}
-          onChange={(e) => setExpense(e.target.value)}
-          leftIcon={<DollarSign size={18} className="text-red-500" />}
-        />
-      </div>
-      
       <Select
         label="Transaction Type"
-        options={typeOptions}
-        value={type}
-        onChange={setType}
+        options={transactionTypeOptions}
+        value={transactionType}
+        onChange={setTransactionType}
+        required
+      />
+      
+      <Select
+        label="Category"
+        options={categoryOptions}
+        value={category}
+        onChange={setCategory}
         required
       />
       
       <Input
-        label="Reason / Description"
-        placeholder="What's this transaction for?"
+        label="Reason"
+        placeholder="Enter transaction reason"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         required
@@ -137,6 +134,17 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         onChange={setWalletId}
         required
         error={error}
+      />
+      
+      <Input
+        label={`${transactionType === 'income' ? 'Income' : 'Expense'} Amount`}
+        type="number"
+        step="0.01"
+        placeholder="0.00"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        required
+        leftIcon={<DollarSign size={18} className={transactionType === 'income' ? 'text-emerald-500' : 'text-red-500'} />}
       />
       
       <Button type="submit" isLoading={isLoading} className="w-full mt-6">
