@@ -90,12 +90,16 @@ export const CalendarPage: React.FC = () => {
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+const formatCurrency = (amount: number) => {
+  const formatted = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'NPR',
+    currencyDisplay: 'code', // Show "NPR" so we can replace it
+  }).format(amount);
+
+  // Replace "NPR" with "रु"
+  return formatted.replace('NPR', 'रु');
+};
 
   const timeframeData = getTimeframeData();
   const categoryData = getCategoryData();
