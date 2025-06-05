@@ -28,7 +28,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
     if (amount === undefined) return '';
     
     const currency = getWalletCurrency(walletId);
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: currency,
     }).format(amount);
