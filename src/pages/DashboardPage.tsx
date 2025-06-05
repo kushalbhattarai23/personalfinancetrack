@@ -25,14 +25,14 @@ export const DashboardPage: React.FC = () => {
           <Button
             variant="outline"
             leftIcon={<Plus size={16} />}
-            onClick={() => window.location.href = '/wallets/new'}
+            onClick={() => window.location.href = '/wallets'}
             className="w-full sm:w-auto"
           >
             New Wallet
           </Button>
           <Button
             leftIcon={<Plus size={16} />}
-            onClick={() => window.location.href = '/transactions/new'}
+            onClick={() => window.location.href = '/transactions'}
             className="w-full sm:w-auto"
           >
             New Transaction
