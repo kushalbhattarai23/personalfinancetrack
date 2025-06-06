@@ -9,6 +9,7 @@ import { CalendarPage } from './pages/CalendarPage';
 import { SignInPage } from './pages/SignInPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { CategoriesPage } from './pages/CategoriesPage';
+import { CategoryReportsPage } from './pages/CategoryReportsPage';
 function App() {
   const { user, isLoading, getUser } = useAuthStore();
   
@@ -34,6 +35,7 @@ function App() {
             <Route path="/wallets/:id" element={<WalletDetailsPage />} />
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/category-report" element={<CategoryReportsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
