@@ -4,6 +4,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Select } from '../ui/Select';
 import { Transaction, Wallet } from '../../types';
+import { useCategoryStore } from '../../store/categoryStore';
 
 interface TransactionFormProps {
   transaction?: Transaction;
@@ -20,15 +21,26 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onSubmit,
   isLoading,
 }) => {
+  const { categories, fetchCategories } = useCategoryStore();
   const today = new Date().toISOString().split('T')[0];
   
   const [date, setDate] = useState(today);
   const [transactionType, setTransactionType] = useState('expense');
-  const [category, setCategory] = useState('Food');
+  const [category, setCategory] = useState('');
   const [reason, setReason] = useState('');
   const [walletId, setWalletId] = useState('');
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
+  
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+  
+  useEffect(() => {
+    if (categories.length > 0 && !category) {
+      setCategory(categories[0].name);
+    }
+  }, [categories, category]);
   
   useEffect(() => {
     if (transaction) {
@@ -75,16 +87,10 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     { value: 'expense', label: 'Expense' },
   ];
   
-  const categoryOptions = [
-    { value: 'Food', label: 'Food' },
-    { value: 'Transportation', label: 'Transportation' },
-    { value: 'Entertainment', label: 'Entertainment' },
-    { value: 'Shopping', label: 'Shopping' },
-    { value: 'Bills', label: 'Bills' },
-    { value: 'Salary', label: 'Salary' },
-    { value: 'Investment', label: 'Investment' },
-    { value: 'Others', label: 'Others' },
-  ];
+  const categoryOptions = categories.map(cat => ({
+    value: cat.name,
+    label: cat.name,
+  }));
   
   const walletOptions = wallets.map(wallet => ({
     value: wallet.id,
